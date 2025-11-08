@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Join Course — Henshaw's Tech World</title>
+
+<style>
+/* ====== THEME COLORS ====== */
+:root{
+  --bg:#070708;
+  --panel: rgba(255,255,255,0.04);
+  --muted:#9aa3a6;
+  --accent1:#00ffff;
+  --accent2:#00ff5a;
+  --accent3:#0040ff;
+  --glass: rgba(255,255,255,0.03);
+  --glass-strong: rgba(255,255,255,0.06);
+  --text:#e8fdfc;
+  --glow:0 0 30px rgba(0,255,255,0.12),0 0 60px rgba(0,64,255,0.06);
+  --smooth:400ms cubic-bezier(.2,.9,.2,1);
+}
+
+/* ====== RESET ====== */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background-image:radial-gradient(circle at top left,rgba(0,255,255,0.15),transparent 60%),
+                   radial-gradient(circle at bottom right,rgba(0,64,255,0.1),transparent 60%);
+}
+
+/* ====== DEMO BUTTON ====== */
+.page-content{text-align:center;}
+.page-content h1{
+  color:var(--accent1);
+  text-shadow:0 0 12px rgba(0,255,255,0.3);
+  margin-bottom:2rem;
+}
+.page-content .btn{
+  background:linear-gradient(90deg,var(--accent3),var(--accent1));
+  border:none;
+  color:var(--text);
+  padding:0.8rem 1.5rem;
+  border-radius:12px;
+  cursor:pointer;
+  font-weight:600;
+  transition:var(--smooth);
+}
+.page-content .btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(0,255,255,0.3);
+}
+
+/* ====== MODAL BACKDROP ====== */
+.join-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  justify-content:center;
+  align-items:center;
+  z-index:100;
+}
+.join-modal.active{
+  display:flex;
+  animation:fadeIn 0.4s ease;
+}
+@keyframes fadeIn{
+  from{opacity:0;transform:scale(0.95);}
+  to{opacity:1;transform:scale(1);}
+}
+
+/* ====== MODAL CONTAINER ====== */
+.container{
+  width:360px;
+  background:var(--panel);
+  border:2px solid transparent;
+  border-radius:20px;
+  box-shadow:var(--accent1);
+  padding:2rem;
+  backdrop-filter:blur(15px);
+  transition:var(--smooth);
+  position:relative;
+  overflow:hidden;
+}
+.container::before{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  border-radius:20px;
+  background:linear-gradient(130deg,var(--accent1),var(--accent3),var(--accent2));
+  z-index:-1;
+  animation:borderFlow 4s linear infinite;
+}
+@keyframes borderFlow{
+  0%{filter:hue-rotate(0deg);}
+  100%{filter:hue-rotate(360deg);}
+}
+.container h2{
+  text-align:center;
+  margin-bottom:1.5rem;
+  color:var(--accent1);
+  text-shadow:0 0 8px rgba(0,255,255,0.4);
+}
+
+/* ====== FORM INPUTS ====== */
+.input-group{position:relative;margin-bottom:1.2rem;}
+.input-group input{
+  width:100%;
+  padding:0.75rem 1rem;
+  background:var(--glass);
+  border:1px solid var(--glass-strong);
+  border-radius:10px;
+  color:var(--text);
+  outline:none;
+  transition:var(--smooth);
+}
+.input-group input:focus{
+  border-color:var(--accent1);
+  box-shadow:0 0 10px rgba(0,255,255,0.2);
+}
+.input-group label{
+  position:absolute;
+  left:1rem;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  color:var(--muted);
+  transition:var(--smooth);
+}
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label{
+  top:0;
+  left:0.8rem;
+  font-size:0.75rem;
+  color:var(--accent1);
+  background:var(--bg);
+  padding:0 0.4rem;
+  border-radius:5px;
+}
+
+/* ====== BUTTON ====== */
+.btn{
+  width:100%;
+  padding:0.8rem;
+  background:linear-gradient(90deg,var(--accent3),var(--accent1));
+  border:none;
+  border-radius:10px;
+  color:var(--text);
+  font-weight:600;
+  cursor:pointer;
+  transition:var(--smooth);
+}
+.btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 15px rgba(0,255,255,0.3);
+}
+
+/* ====== LOADING & SUCCESS ====== */
+.loading-spinner{
+  display:none;
+  width:22px;
+  height:22px;
+  border:3px solid var(--accent1);
+  border-top:3px solid transparent;
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+  margin:auto;
+}
+@keyframes spin{
+  100%{transform:rotate(360deg);}
+}
+.success-message{
+  display:none;
+  text-align:center;
+  color:var(--accent2);
+  font-weight:600;
+  margin-top:1rem;
+  animation:fadeIn 0.4s ease;
+}
+
+/* ====== CANCEL LINK ====== */
+.switch{
+  text-align:center;
+  margin-top:1rem;
+  color:var(--muted);
+}
+.switch a{
+  color:var(--accent2);
+  cursor:pointer;
+  text-decoration:none;
+  transition:var(--smooth);
+}
+.switch a:hover{color:var(--accent1);}
+</style>
+</head>
+<body>
+
+
+<!-- JOIN COURSE MODAL -->
+<div class="join-modal" id="joinModal">
+  <div class="container">
+    <form id="join-form" onsubmit="return joinCourse()">
+      <h2>Join This Course</h2>
+      <div class="input-group">
+        <input type="text" id="join-name" placeholder=" " required>
+        <label for="join-name">Full Name</label>
+      </div>
+      <div class="input-group">
+        <input type="email" id="join-email" placeholder=" " required>
+        <label for="join-email">Email Address</label>
+      </div>
+      <div class="input-group">
+        <input type="text" id="join-course" placeholder=" " readonly>
+        <label for="join-course">Course</label>
+      </div>
+
+      <div class="loading-spinner" id="loading"></div>
+      <button type="submit" class="btn" id="join-btn">Join Now</button>
+      <p class="success-message" id="success-msg"> Successfully joined!</p>
+
+      <div class="switch">
+        <a onclick="closeJoinModal()">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+// ====== OPEN MODAL (For in-page join buttons) ======
+function openJoinModal(courseTitle) {
+  document.getElementById("join-course").value = courseTitle || "";
+  document.getElementById("joinModal").classList.add("active");
+}
+
+// ====== CLOSE MODAL ======
+function closeJoinModal() {
+  const modal = document.getElementById("joinModal");
+  const success = document.getElementById("success-msg");
+
+  modal.classList.remove("active");
+  success.style.display = "none";
+
+  // If page was opened via direct link (has ?course param), go back
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("course")) {
+    setTimeout(() => {
+      history.back();
+    }, 300);
+  }
+}
+
+// ====== SUBMIT JOIN FORM ======
+async function joinCourse() {
+  const name = document.getElementById("join-name").value.trim();
+  const email = document.getElementById("join-email").value.trim();
+  const course = document.getElementById("join-course").value.trim();
+  const loading = document.getElementById("loading");
+  const btn = document.getElementById("join-btn");
+  const success = document.getElementById("success-msg");
+
+  if (!name || !email || !course) {
+    alert("⚠️ Please fill all fields.");
+    return false;
+  }
+
+  // Validate email
+  const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,}$/i;
+  if (!emailPattern.test(email)) {
+    alert("⚠️ Please enter a valid email address.");
+    return false;
+  }
+
+  // Show loading spinner
+  btn.style.display = "none";
+  loading.style.display = "block";
+
+  // Simulate server delay
+  await new Promise(r => setTimeout(r, 1500));
+
+  // Show success
+  loading.style.display = "none";
+  success.style.display = "block";
+  btn.style.display = "block";
+
+  // Reset form
+  document.getElementById("join-form").reset();
+
+  // Example backend POST
+  // await fetch("/api/join-course", {
+  //   method: "POST",
+  //   headers: { "Content-Type": "application/json" },
+  //   body: JSON.stringify({ name, email, course })
+  // });
+
+  return false;
+}
+
+// ====== AUTO-FILL COURSE FROM URL ======
+window.addEventListener("DOMContentLoaded", () => {
+  const params = new URLSearchParams(window.location.search);
+  const courseTitle = params.get("course");
+  if (courseTitle) {
+    document.getElementById("join-course").value = decodeURIComponent(courseTitle);
+    document.getElementById("joinModal").classList.add("active");
+  }
+});
+</script>
+</body>
+</html>

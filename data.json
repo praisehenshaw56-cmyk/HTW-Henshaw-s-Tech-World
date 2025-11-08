@@ -1,0 +1,97 @@
+{
+  "courses": [
+    "Frontend • UI/UX",
+    "Robotics",
+    "Electronics",
+    "Data Analysis",
+    "Machines"
+  ],
+  "projects": [
+    {
+      "category": "Frontend UI/UX",
+      "items": ["Glassmorphism Dashboard", "Personal Portfolio Website", "Responsive E-Commerce UI", "Animated Login/Signup Page"]
+    },
+    {
+      "category": "Robotics",
+      "items": ["IoT-Based Smart Arm", "Voice-Controlled Bot", "Obstacle Avoidance Robot"]
+    },
+    {
+      "category": "Machines",
+      "items": ["Automated Door System", "Simple CNC Prototype", "Conveyor Belt System"]
+    },
+    {
+      "category": "Data Analysis",
+      "items": ["COVID-19 Dataset Analysis", "Predictive Trends Report", "Sales Insights Dashboard"]
+    }
+  ]
+}
+{
+  "courses": [
+    "Frontend • UI/UX",
+    "Robotics",
+    "Electronics",
+    "Data Analysis",
+    "Machines"
+  ],
+  "projects": [
+    {
+      "category": "Frontend UI/UX",
+      "items": ["Glassmorphism Dashboard", "Personal Portfolio Website", "Responsive E-Commerce UI", "Animated Login/Signup Page"]
+    },
+    {
+      "category": "Robotics",
+      "items": ["IoT-Based Smart Arm", "Voice-Controlled Bot", "Obstacle Avoidance Robot"]
+    },
+    {
+      "category": "Machines",
+      "items": ["Automated Door System", "Simple CNC Prototype", "Conveyor Belt System"]
+    },
+    {
+      "category": "Data Analysis",
+      "items": ["COVID-19 Dataset Analysis", "Predictive Trends Report", "Sales Insights Dashboard"]
+    }
+  ],
+  "faq": [
+    {
+      "question": "What services does Henshaw’s Tech World offer?",
+      "answer": "We provide tech courses, web development services, and tech support to help individuals and businesses build their digital presence."
+    },
+    {
+      "question": "How can I contact support?",
+      "answer": "You can reach us through our live chat or by using email support."
+    },
+    {
+      "question": "How do I enroll in a tech course?",
+      "answer": "Visit our Courses page, select your desired course, and follow the registration and payment steps."
+    },
+    {
+      "question": "Do you offer one-on-one mentorship?",
+      "answer": "Yes, we offer personalized mentorship. You can book a session through our contact page or live chat."
+    }
+  ]
+}
+{
+  "courses": ["Frontend • UI/UX", "Robotics", "Electronics", "Data Analysis", "Machines"],
+  "projects": [
+    {
+      "category": "Robotics",
+      "items": ["Obstacle Avoidance Robot", "Line-Following Car", "Voice-Controlled Bot", "IoT-Based Smart Arm"]
+    }
+  ]
+}
+{
+  "courses": [
+    {
+      "name": "Robotics",
+      "about": "Learn Arduino, Raspberry Pi, Python, sensors, actuators, and automation systems.",
+      "projects": ["Obstacle Avoidance Robot", "Line-Following Car", "Voice-Controlled Bot", "IoT-Based Smart Arm"],
+      "next": "Advance to AI-powered robotics, drone navigation, and machine vision."
+    },
+    {
+      "name": "Machines",
+      "about": "Understand mechanical systems, automation, motors, gears, sensors, and mechatronics integration.",
+      "projects": ["Conveyor Belt System", "Smart Sorting Machine", "Automated Door System", "Simple CNC Prototype"],
+      "next": "Move into robotics, AI integration, and advanced mechanical simulation."
+    }
+  ]
+}

@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>HENSHAW'S TECH WORLD</title>
+<style>
+  /* ====== Base & Colors (neon cyan / green / blue palette) ====== */
+  :root{
+    --bg:#070708;
+    --panel: rgba(255,255,255,0.04);
+    --muted:#9aa3a6;
+    --accent1: #00ffff; /* cyan */
+    --accent2: #00ff5a; /* green */
+    --accent3: #0040ff; /* blue */
+    --glass: rgba(255,255,255,0.03);
+    --glass-strong: rgba(255,255,255,0.06);
+    --text: #e8fdfc;
+    --glow: 0 0 30px rgba(0,255,255,0.12), 0 0 60px rgba(0,64,255,0.06);
+    --smooth: 400ms cubic-bezier(.2,.9,.2,1);
+  }
+
+  /* Dark/Light toggle (prefers) - base is dark */
+  body.light {
+    --b: #f7fbff;
+    --pane: rgba(2,8,22,0.03);
+    --mute:#334;
+    --tex:#041018;
+    --glas: rgba(2,8,22,0.04);
+    --glass-trong: rgba(2,8,22,0.08);
+  }
+
+  * { box-sizing: border-box; }
+  html,body { height:100%; }
+  body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 500px at 10% 10%, rgba(0,255,255,0.04), transparent),
+                radial-gradient(900px 400px at 90% 90%, rgba(0,128,255,0.03), transparent),
+                var(--bg);
+    color:var(--text);
+    overflow-x:hidden;
+    transition: background var(--smooth), color var(--smooth);
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+  body.light body{
+    margin:0;
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    background: radial-gradient(1200px 500px at 10% 10%, rgba(0,255,255,0.04), transparent),
+                radial-gradient(900px 400px at 90% 90%, rgba(0,128,255,0.03), transparent),
+                var(--bg);
+    color:var(--tex);
+    overflow-x:hidden;
+    transition: background var(--smooth), color var(--smooth);
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+  }
+
+  /* Loading overlay */
+  #loader {
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg, rgba(0,0,0,0.7), rgba(0,0,0,0.85));
+    backdrop-filter: blur(200px);
+    transition: opacity 600ms ease, visibility 3000ms;
+  }
+  #loader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+#aiChatBtn img {
+  display: block;
+  margin: auto;
+}
+
+  .logo {
+    text-align:center;
+    transform: translateY(-8px);
+  }
+  .logo h1{
+    font-size:45px;
+    letter-spacing:3px;
+    margin:0 0 8px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2), var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .logo .tag {
+    color:var(--muted);
+    font-size:18px;
+    background: transparent;
+    border: none;
+    margin-bottom:6px;
+  }
+  .bar {
+    width:240px;height:10px;border-radius:999px;
+    background: rgba(255,255,255,0.06); overflow:hidden; margin:12px auto 0;
+    box-shadow: var(--glow);
+  }
+  .bar > i {
+    display:block; height:100%; width:0%; background: linear-gradient(90deg, var(--accent1), var(--accent3));
+    transition: width 900ms cubic-bezier(.2,.9,.2,1);
+  }
+  /* ===== AI Chat Floating Button ===== */
+#aiChatBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent1), var(--accent3));
+  box-shadow: 0 0 25px rgba(0,255,255,0.2);
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  color: #001;
+  cursor: pointer;
+  z-index: 9999;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+#aiChatBtn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 40px rgba(0,255,255,0.4);
+}
+
+/* ===== Chat Box ===== */
+#aiChatBox {
+  position: fixed;
+  bottom: 100px;
+  right: 28px;
+  width: 320px;
+  background: var(--panel);
+  border: 1px solid var(--glass-strong);
+  border-radius: 18px;
+  box-shadow: 0 0 25px rgba(0,255,255,0.08);
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  display: none;
+  flex-direction: column;
+  z-index: 9998;
+}
+#aiChatBtn {
+  display: none; /* hide initially */
+}
+
+.chat-header {
+  background: linear-gradient(90deg,var(--accent1),var(--accent3));
+  color: #001;
+  font-weight: 700;
+  padding: 10px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-header button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #001;
+  cursor: pointer;
+}
+
+.chat-body {
+  padding: 14px;
+  height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  scroll-behavior: smooth;
+}
+.msg {
+  padding: 10px 14px;
+  border-radius: 12px;
+  max-width: 80%;
+  line-height: 1.4;
+}
+.msg.bot {
+  background: rgba(0,255,255,0.08);
+  align-self: flex-start;
+}
+.msg.user {
+  background: rgba(0,255,90,0.12);
+  align-self: flex-end;
+}
+.chat-input {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  background: var(--glass);
+}
+.chat-input input {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-strong);
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+}
+.chat-input button {
+  background: linear-gradient(90deg,var(--accent1),var(--accent3));
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #001;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+#h2{
+  font-size:32px;
+}
+  /* Mouse-follow glow */
+  .follow {
+    position:fixed; left:0; top:0; pointer-events:none; z-index:900;
+    mix-blend-mode:screen;
+  }
+  .glow-layer {
+    position:absolute; border-radius:50%;
+    transform: translate(-50%,-50%) scale(1);
+    filter: blur(40px); opacity:0.9;
+    transition: transform 260ms linear;
+  }
+  .g1{ width:280px;height:280px;background:radial-gradient(circle at 30% 30%, rgba(0,255,255,0.36), transparent 50%); }
+  .g2{ width:420px;height:420px;background:radial-gradient(circle at 30% 30%, rgba(0,255,90,0.16), transparent 45%); filter: blur(72px); opacity:0.55; }
+  .g3{ width:720px;height:720px;background:radial-gradient(circle at 20% 20%, rgba(0,64,255,0.08), transparent 45%); filter: blur(120px); opacity:0.45; }
+
+  /* Page layout */
+  header{
+    position:relative;
+    padding: 40px 28px;
+    display:flex;align-items:center;gap:20px; justify-content:space-between;
+    border-bottom:1px solid var(--glass-strong);
+    backdrop-filter: blur(6px);
+  }
+  .brand {
+    display:flex; align-items:center; gap:16px;
+  }
+  .mark{
+    width:64px;height:64px;border-radius:12px;
+    background: linear-gradient(135deg,var(--accent1),var(--accent2),var(--accent3));
+    display:grid;place-items:center;
+    color: var(--text);
+    font-weight: 900;
+    font-size: 22px;
+    box-shadow: 0 6px 30px rgba(0,255,255,0.08);
+  }
+  .mark svg{ width:36px;height:36px; opacity:0.98; }
+  .title { line-height:1; }
+  .title h2 { font-size:18px; margin:0; text-transform:uppercase; letter-spacing:2px; color:var(--accent1); }
+  .title p { margin:0; color:var(--muted); font-size:13px; }
+
+  nav { display:flex; gap:14px; align-items:center; }
+  .btn { padding:8px 14px; border-radius:12px;border:1px solid rgba(255,255,255,0.06); background:var(--panel); cursor:pointer; color:var(--text); transition: all 220ms;}
+  .btn:hover { transform:translateY(-2px); box-shadow: var(--glow); }
+.btn1 { padding:8px 14px; border-radius:12px;border:1px solid rgba(255,255,255,0.06); background:var(--panel); cursor:pointer; color:var(--text); transition: all 220ms; font-size: 18px; letter-spacing: 0.2rem;}
+  .btn1:hover { transform:translateY(-2px); box-shadow: var(--glow); }
+
+  .toggle {
+    display:flex; align-items:center; gap:8px; padding:6px; border-radius:999px; background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  }
+a{
+  text-decoration: none;
+  text-transform: capitalize;
+  color: var(--muted);
+}
+  main { padding: 40px 28px; display:grid; gap:40px; max-width:1300px; margin:0 auto; }
+
+  .hero {
+    display:grid; grid-template-columns: 1fr 400px; gap:28px; align-items:center;
+  }
+  .profile {
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius:18px; padding:28px; border:1px solid var(--glass);
+    box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+    position:relative; overflow:hidden;
+  }
+  #p{
+    font-size: 16px;
+  }
+  .profile h1 { margin:0; font-size:28px; letter-spacing:1px; }
+  .profile p {text-transform: capitalize; color:var(--muted); margin-top:8px; line-height:1.5; }
+  .meta { display:flex; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .chip { padding:8px 12px; border-radius:999px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04); color:var(--muted); font-size:13px; }
+ #chip { padding:8px 12px; border-radius:999px; background:transparent; border:none; font-size:13px;font-size: 18px; color:var(--text);}
+.chip:active{
+ background: linear-gradient(90deg,var(--accent1),var(--accent3)); font-weight:700; border:none; box-shadow: var(--glow);}
+.chip:hover{
+ background: linear-gradient(90deg,var(--accent1),var(--accent3)); font-weight:700; border:none; box-shadow: var(--glow);
+}
+ h1{
+  text-shadow: 2px 2px 5px var(--accent1);
+}
+  .cta { margin-top:20px; display:flex; gap:12px; align-items:center; }
+  .cta .primary { background: linear-gradient(90deg,var(--accent1),var(--accent3)); color:#001; font-weight:700; border:none; box-shadow: var(--glow); }
+  .cta .ghost { border:1px solid rgba(255,255,255,0.06); background:transparent; color:var(--text); }
+
+  .visual {
+    height:320px; border-radius:18px; display:grid; place-items:center; background: linear-gradient(120deg, rgba(0,255,255,0.03), rgba(0,64,255,0.02));
+    border:1px solid var(--glass);
+  }
+  .visual canvas { width:100%; height:100%; display:block; }
+
+  /* Projects grid */
+  .projects-grid{
+    display:grid; grid-template-columns: repeat(auto-fit,minmax(260px,1fr)); gap:20px;
+  }
+  .project {
+    padding:18px; border-radius:14px; background:var(--panel); border:1px solid var(--glass);
+    transition: transform 400ms cubic-bezier(.2,.9,.2,1), box-shadow 400ms;
+  }
+  .project:hover{ transform: translateY(-8px); box-shadow: var(--glow); }
+  .project h3{ margin:0; color:var(--accent1); }
+  .project p{ color:var(--muted); margin-top:8px; font-size:14px; line-height:1.5;}
+  .project .tags{ margin-top:12px; display:flex; gap:8px; flex-wrap:wrap; }
+  .tag{ font-size:12px; padding:6px 8px; border-radius:8px; background:rgba(255,255,255,0.02); color:var(--muted); border:1px solid rgba(255,255,255,0.03); }
+
+  /* Footer */
+  footer { padding:30px 28px; text-align:center;text-shadow:2px 2px 5px var(--accent1); color:var(--muted); border-top:1px solid var(--glass-strong); background: transparent;}
+  /* Smooth scroll reveal */
+  .reveal { opacity:0; transform: translateY(12px); transition: opacity 700ms ease, transform 700ms ease; }
+  .reveal.show { opacity:1; transform: translateY(0); }
+
+  /* Responsive */
+  @media (max-width:900px){
+    .hero { grid-template-columns: 1fr; }
+    .visual { height:260px; }
+    header { padding:18px; }
+    main { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+  <!-- Loading / Intro -->
+  <div id="loader">
+    <div>
+      <div class="logo">
+        <h1>HENSHAW'S TECH WORLD </h1>
+        <div class="tag">WELCOME TO HENSHAW'S TECH WORLD</div>
+        <div class="bar"><i></i></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mouse-follow glow layers -->
+  <div class="follow" aria-hidden="true">
+    <div class="glow-layer g1"></div>
+    <div class="glow-layer g2"></div>
+    <div class="glow-layer g3"></div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="mark" aria-hidden="true">
+        HTW
+        </svg>
+      </div>
+      <div class="title">
+        <h2 id="h2">HENSHAW'S TECH WORLD </h2>
+        <p id="p">Varieties of Tech • Unlimited</p>
+      </div>
+    </div>
+
+    <nav>
+      <div class="toggle btn" id="themeToggle" title="Toggle dark / light">
+        <svg id="moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </div>
+      <button class="btn"><a href="login-signup.html">Login / SignUp</a></button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="profile reveal" data-reveal>
+        <h1>HENSHAW'S TECH WORLD </h1>
+        <p>view our available <strong>courses</strong></p>
+
+        <div class="meta">
+     <span class="chip"> <a href="frontend . uiux.html"><button class="frontend" id="chip">Frontend • UI/UX</button></a></span>
+      <span class="chip"> <a href="Robotics.html"><button class="frontend" id="chip">Robotics</button></a></span>
+       <span class="chip"><a href="Electronics.html"> <button class="frontend" id="chip">Electronics</button></a></span>
+        <span class="chip"><a href="Data Analysis.html"> <button class="frontend" id="chip">Data Analysis</button></a></span>
+         <span class="chip"><a href="Machines.html"> <button class="frontend" id="chip">Machines</button></a></span>
+        </div>
+
+        <div class="cta">
+         <a  href="support.html"><button class="btn primary" id="portfolio">Support</button></a> 
+         <a href="#reveal"><button class="btn ghost" id="hire">View Projects</button></a> 
+        </div>
+      </div>
+
+      <div class="visual reveal" data-reveal>
+        <!-- small canvas demo (eyecandy) -->
+        <canvas id="visualCanvas" width="400" height="320" aria-hidden="true"></canvas>
+      </div>
+    </section>
+<br><br>
+    <!-- Projects -->
+    <section>
+      <h2 style="color:var(--accent1); margin-bottom:100px;text-decoration: underline;text-decoration-color: var(--accent1);" class="reveal" id="reveal"  data-reveal>Projects</h2><br>
+      <div class="projects-grid">
+        <article class="project reveal" data-reveal>
+          <h3>Frontend Ui/Ux</h3>
+          <p> Creating high Responsive Websites</p>
+          <div class="tags">
+            <span class="tag">Glassmorphism Dashboard</span><span class="tag">Personal Portfolio Website</span><span class="tag">Responsive E-Commerce UI</span><span class="tag">Animated Login/Signup Page</span>
+          </div>
+        </article>
+
+        <article class="project reveal" data-reveal>
+          <h3>Robotics</h3>
+          <p>Powerful robots creation , availability , management and control using sensors , motors ,  actuators ,  actuators , Arduino , Raspberry Pi, and Python</p>
+          <div class="tags">
+            <span class="tag"> IoT-Based Smart Arm</span><span class="tag">Voice-Controlled Bot</span><span class="tag">Obstacle Avoidance Robot</span>
+          </div>
+        </article>
+
+        <article class="project reveal" data-reveal>
+          <h3>Machines</h3>
+          <p>Understand mechanical systems, automation, and the principles that power industrial and smart machines. Learn about motors, gears, sensors, and mechatronics integration.</p>
+          <div class="tags">
+            <span class="tag">Automated Door System</span><span class="tag">Simple CNC Prototype</span><span class="tag">Conveyor Belt System</span>
+          </div>
+        </article>
+
+        <article class="project reveal" data-reveal>
+          <h3>Data Analysis</h3>
+          <p>Become a data-driven decision maker. Learn Excel, Python, SQL, and visualization tools like Power BI and Tableau to analyze and present insights clearly.</p>
+          <div class="tags">
+            <span class="tag">COVID-19 Dataset Analysis</span><span class="tag">Predictive Trends Report</span><span class="tag">Sales Insights Dashboard</span>
+          </div>
+        </article>
+      </div>
+    </section>
+  </main>
+<!-- ===== Floating AI Chat Button ===== -->
+<div id="aiChatBtn" title="Chat with AI">
+  <img src="download-removebg-preview.png" alt="Chat" style="width:28px; height:28px;" />
+</div>
+
+
+<!-- ===== AI Chat Box ===== -->
+<div id="aiChatBox">
+  <div class="chat-header">
+    <span>AI Assistant</span>
+    <button id="closeChat">×</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div class="msg bot">👋 Hi! I’m your AI assistant. How can I help you today?</div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="userInput" placeholder="Type your message..." />
+    <button id="sendBtn">➤</button>
+  </div>
+</div>
+
+  <footer>
+    <div style="margin-bottom:12px;">© <span id="year"></span> <span></span>HENSHAW'S TECH WORLD  </div>
+    <div style="color:var(--muted);font-size:13px;">Imagine and create an amazing world</div>
+  </footer>
+
+<script>
+/* ========= Loader (progress visual) ========= */
+const loader = document.getElementById('loader');
+const bar = document.querySelector('.bar > i');
+
+function fakeLoad() {
+  // simulate steps with smooth increase
+  bar.style.width = '18%';
+  setTimeout(() => bar.style.width = '48%', 250);
+  setTimeout(() => bar.style.width = '78%', 850);
+  setTimeout(() => {
+    bar.style.width = '100%';
+    setTimeout(() => {
+      loader.classList.add('hidden');
+      initAfterLoad();
+
+      // show chat button after loader
+      aiChatBtn.style.display = "grid";
+
+    }, 500);
+  }, 1250);
+}
+
+fakeLoad();
+
+/* ========= Mouse-follow glow ========= */
+const follow = document.querySelector('.follow');
+const g1 = document.querySelector('.g1');
+const g2 = document.querySelector('.g2');
+const g3 = document.querySelector('.g3');
+
+let mouse = {x: innerWidth/2, y: innerHeight/2};
+window.addEventListener('mousemove', e => {
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  updateGlow();
+});
+window.addEventListener('touchmove', e => {
+  const t = e.touches[0];
+  if (t) { mouse.x = t.clientX; mouse.y = t.clientY; updateGlow(); }
+}, {passive:true});
+
+function updateGlow(){
+  g1.style.left = mouse.x + 'px';
+  g1.style.top  = mouse.y + 'px';
+  g1.style.transform = 'translate(-50%,-50%) scale(1)';
+  g2.style.left = mouse.x * 0.94 + 'px';
+  g2.style.top  = mouse.y * 0.96 + 'px';
+  g3.style.left = mouse.x * 0.9 + 'px';
+  g3.style.top  = mouse.y * 0.9 + 'px';
+}
+
+/* ========= Reveal on scroll (smooth animations) ========= */
+const revealEls = [];
+document.querySelectorAll('[data-reveal]').forEach(e => revealEls.push(e));
+
+function onScrollReveal(){
+  const vh = window.innerHeight;
+  revealEls.forEach(el => {
+    const r = el.getBoundingClientRect();
+    if (r.top < vh - 80) el.classList.add('show');
+  });
+}
+window.addEventListener('scroll', onScrollReveal, {passive:true});
+
+/* ========= Visual Canvas (small generative demo) ========= */
+const canvas = document.getElementById('visualCanvas');
+const ctx = canvas.getContext('2d');
+let t0 = 0;
+function drawVisual(ts){
+  const w = canvas.width = canvas.clientWidth * devicePixelRatio;
+  const h = canvas.height = canvas.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+  const cx = w/2, cy = h/2;
+  // animated orbs
+  for (let i=0;i<6;i++){
+    const r = 40 + i*18 + Math.sin(ts/600 + i)*8;
+    const a = ts/1000 + i*0.7;
+    const x = cx + Math.cos(a)* (80 + i*12);
+    const y = cy + Math.sin(a)* (40 + i*6);
+    ctx.beginPath();
+    const grad = ctx.createRadialGradient(x,y,0,x,y,r*1.6);
+    grad.addColorStop(0, i%2? 'rgba(0,255,255,0.14)' : 'rgba(0,255,90,0.09)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(x - r*2, y - r*2, r*4, r*4);
+  }
+  requestAnimationFrame(drawVisual);
+}
+requestAnimationFrame(drawVisual);
+
+/* ========= Ambient generative sound (WebAudio) ========= */
+let audioCtx, masterGain, oscA, oscB, lfo;
+let soundOn = false;
+function initAudio(){
+  if (audioCtx) return;
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.0; // start muted
+  masterGain.connect(audioCtx.destination);
+
+  // two detuned sawlike oscillators
+  oscA = audioCtx.createOscillator();
+  oscB = audioCtx.createOscillator();
+  const gainA = audioCtx.createGain();
+  const gainB = audioCtx.createGain();
+  oscA.type = 'sine'; oscB.type = 'sine';
+  oscA.frequency.value = 110; oscB.frequency.value = 110.7;
+  gainA.gain.value = 0.02;
+  gainB.gain.value = 0.02;
+  oscA.connect(gainA); gainA.connect(masterGain);
+  oscB.connect(gainB); gainB.connect(masterGain);
+
+  // gentle LFO to modulate master gain for breathing effect
+  lfo = audioCtx.createOscillator();
+  const lfoGain = audioCtx.createGain();
+  lfo.type = 'sine'; lfo.frequency.value = 0.08; // slow
+  lfoGain.gain.value = 0.03;
+  lfo.connect(lfoGain);
+  lfoGain.connect(masterGain.gain);
+
+  oscA.start(); oscB.start(); lfo.start();
+
+  // ramp in sound
+  masterGain.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 1.0);
+  soundOn = true;
+}
+
+function toggleAudio(on){
+  if (on) initAudio();
+  else if (audioCtx){
+    masterGain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 0.6);
+    setTimeout(()=> {
+      if (audioCtx && audioCtx.state !== 'closed') {
+        audioCtx.close().catch(()=>{}); audioCtx = null;
+      }
+    },900);
+    soundOn = false;
+  }
+}
+
+/* hover & click SFX using short WebAudio notes */
+function playClickTone(){
+  try {
+    if (!audioCtx) initAudio();
+    const now = audioCtx.currentTime;
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type='sine'; o.frequency.setValueAtTime(420, now);
+    g.gain.setValueAtTime(0.0015, now);
+    g.gain.exponentialRampToValueAtTime(0.00001, now + 0.12);
+    o.connect(g); g.connect(masterGain);
+    o.start(now); o.stop(now + 0.13);
+  } catch(e){}
+}
+// === AI Chat Widget Logic ===
+const aiChatBtn = document.getElementById("aiChatBtn");
+const aiChatBox = document.getElementById("aiChatBox");
+const closeChat = document.getElementById("closeChat");
+const sendBtn = document.getElementById("sendBtn");
+const userInput = document.getElementById("userInput");
+const chatBody = document.getElementById("chatBody");
+
+aiChatBtn.addEventListener("click", () => {
+  aiChatBox.style.display = "flex";
+  aiChatBtn.style.display = "none";
+});
+
+closeChat.addEventListener("click", () => {
+  aiChatBox.style.display = "none";
+  aiChatBtn.style.display = "grid";
+});
+
+function addMessage(sender, text){
+  const msg = document.createElement("div");
+  msg.classList.add("msg", sender);
+  msg.textContent = text;
+  chatBody.appendChild(msg);
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keypress", e => {
+  if(e.key === "Enter") sendMessage();
+});
+
+function sendMessage(){
+  const text = userInput.value.trim();
+  if(!text) return;
+  addMessage("user", text);
+  userInput.value = "";
+
+  // Simulated AI response (replace with real API later)
+  setTimeout(()=>{
+    const replies = [
+      "That sounds interesting!",
+      "Let me help you with that.",
+      "I can explain that further if you want.",
+      "Could you give me more details?",
+      "✅ Done! What else would you like to do?"
+    ];
+    const reply = replies[Math.floor(Math.random()*replies.length)];
+    addMessage("bot", reply);
+  }, 700);
+}
+/* ========= Theme toggle and UI interactions ========= */
+const themeToggle = document.getElementById('themeToggle');
+themeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('light');
+  playClickTone();
+});
+
+document.getElementById('contactBtn').addEventListener('click', () => {
+  playClickTone();
+  alert('Connect: supracoded@anyweb.dev');
+});
+
+document.getElementById('hire').addEventListener('click', () => {
+  playClickTone();
+  window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});
+});
+document.getElementById('portfolio').addEventListener('click', () => {
+  playClickTone();
+  document.querySelectorAll('[data-reveal]')[1].scrollIntoView({behavior:'smooth', block:'center'});
+});
+
+/* subtle hover fx */
+document.querySelectorAll('.btn, .project').forEach(el => {
+  el.addEventListener('mouseenter', ()=>{ playClickTone(); });
+});
+
+/* footer year */
+document.getElementById('year').innerText = new Date().getFullYear();
+
+/* ========= Initiate interactive features after loader hides ========= */
+function initAfterLoad(){
+  // start audio softly (requires user gesture on many browsers) - add event handlers to resume
+  function resumeOnInteraction(){
+    initAudio();
+    window.removeEventListener('pointerdown', resumeOnInteraction);
+    window.removeEventListener('keydown', resumeOnInteraction);
+  }
+  window.addEventListener('pointerdown', resumeOnInteraction);
+  window.addEventListener('keydown', resumeOnInteraction);
+
+  // show reveals on load
+  onScrollReveal();
+  // update glow start
+  updateGlow();
+
+  // accessibility: keyboard focus outlines
+  document.body.addEventListener('keyup', (e) => {
+    if (e.key === 'Tab') document.body.classList.add('show-focus');
+  });
+
+  // lazy small animations for entrance
+  document.querySelectorAll('[data-reveal]').forEach((el, i) => {
+    setTimeout(()=> el.classList.add('show'), 120 + i*140);
+  });
+}
+
+/* allow toggling ambient audio via 'M' */
+window.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'm') {
+    if (soundOn) toggleAudio(false);
+    else toggleAudio(true);
+  }
+});
+
+/* accessibility: reduce-motion respect */
+const prefersReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+if (prefersReduce && prefersReduce.matches) {
+  document.querySelectorAll('.glow-layer').forEach(g => g.style.transition = 'none');
+  document.querySelectorAll('[data-reveal]').forEach(r => { r.style.transition = 'none'; r.classList.add('show'); });
+  // disable audio
+}
+
+/* start up: (some browsers block audio until user gesture) */
+window.addEventListener('load', ()=> {
+  // we already animated loader — nothing else required
+});
+let siteData = {};
+
+fetch('data/data.json')
+  .then(res => res.json())
+  .then(data => {
+    siteData = data;
+    console.log("Website data loaded:", siteData);
+  })
+  .catch(err => console.error("Failed to load site data:", err));
+
+</script>
+</body>
+</html>

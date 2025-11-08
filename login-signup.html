@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login & Signup — HTW</title>
+<style>
+:root{
+  --bg:#070708;
+  --panel: rgba(255,255,255,0.04);
+  --muted:#9aa3a6;
+  --accent1: #00ffff;
+  --accent2: #00ff5a;
+  --accent3: #0040ff;
+  --glass: rgba(255,255,255,0.03);
+  --glass-strong: rgba(255,255,255,0.06);
+  --text: #e8fdfc;
+  --glow: 0 0 30px rgba(0,255,255,0.12), 0 0 60px rgba(0,64,255,0.06);
+  --smooth: 400ms cubic-bezier(.2,.9,.2,1);
+}
+
+*{margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  background-image:radial-gradient(circle at top left, rgba(0,255,255,0.15), transparent 60%),
+                   radial-gradient(circle at bottom right, rgba(0,64,255,0.1), transparent 60%);
+}
+
+.container{
+  width:360px;
+  background:var(--panel);
+  border:1px solid var(--glass-strong);
+  border-radius:20px;
+  padding:2rem;
+  backdrop-filter:blur(15px);
+  transition:var(--smooth);
+}
+.container:hover{ transform: translateY(-8px); box-shadow: var(--glow); }
+
+.container h2{
+  text-align:center;
+  margin-bottom:1.5rem;
+  color:var(--accent1);
+  text-shadow:0 0 8px rgba(0,255,255,0.4);
+}
+
+.input-group{position:relative; margin-bottom:1.2rem;}
+.input-group input{
+  width:100%;
+  padding:0.75rem 1rem;
+  background:var(--glass);
+  border:1px solid var(--glass-strong);
+  border-radius:10px;
+  color:var(--text);
+  outline:none;
+  transition:var(--smooth);
+}
+.input-group input:focus{
+  border-color:var(--accent1);
+  box-shadow:0 0 10px rgba(0,255,255,0.2);
+}
+.input-group label{
+  position:absolute;
+  left:1rem;
+  top:50%;
+  transform:translateY(-50%);
+  pointer-events:none;
+  color:var(--muted);
+  transition:var(--smooth);
+}
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label{
+  top:0;
+  left:0.8rem;
+  font-size:0.75rem;
+  color:var(--accent1);
+  background:var(--bg);
+  padding:0 0.4rem;
+  border-radius:5px;
+}
+
+.btn{
+  width:100%;
+  padding:0.8rem;
+  background:linear-gradient(90deg,var(--accent3),var(--accent1));
+  border:none;
+  border-radius:10px;
+  color:var(--text);
+  font-weight:600;
+  cursor:pointer;
+  transition:var(--smooth);
+}
+.btn:hover{transform:translateY(-2px); box-shadow:0 0 15px rgba(0,255,255,0.3);}
+
+.switch{text-align:center; margin-top:1rem; color:var(--muted);}
+.switch a{color:var(--accent2); cursor:pointer; text-decoration:none; transition:var(--smooth);}
+.switch a:hover{color:var(--accent1);}
+
+#signup-form{ display:none; }
+.container.signup-mode #login-form{ display:none; }
+.container.signup-mode #signup-form{ display:block; }
+</style>
+</head>
+<body>
+
+<div class="container" id="form-container">
+  <!-- LOGIN FORM -->
+  <form id="login-form" onsubmit="return login()">
+    <h2>Login</h2>
+    <div class="input-group">
+      <input type="email" id="login-user" placeholder=" " required>
+      <label for="login-user">Email</label>
+    </div>
+    <div class="input-group">
+      <input type="password" id="login-pass" placeholder=" " required>
+      <label for="login-pass">Password</label>
+    </div>
+    <button type="submit" class="btn">Login</button>
+    <div class="switch">Don't have an account? <a id="show-signup">Sign Up</a></div>
+  </form>
+
+  <!-- SIGNUP FORM -->
+  <form id="signup-form" onsubmit="return signup()">
+    <h2>Sign Up</h2>
+    <div class="input-group">
+      <input type="text" id="signup-user" placeholder=" " required>
+      <label for="signup-user">Username</label>
+    </div>
+    <div class="input-group">
+      <input type="email" id="signup-email" placeholder=" " required>
+      <label for="signup-email">Email</label>
+    </div>
+    <div class="input-group">
+      <input type="password" id="signup-pass" placeholder=" " required>
+      <label for="signup-pass">Password</label>
+    </div>
+    <button type="submit" class="btn">Create Account</button>
+    <div class="switch">Already have an account? <a id="show-login">Login</a></div>
+  </form>
+</div>
+
+<script>
+const container = document.getElementById("form-container");
+document.getElementById("show-signup").onclick = () => container.classList.add("signup-mode");
+document.getElementById("show-login").onclick = () => container.classList.remove("signup-mode");
+
+function speak(text){
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.95; utter.pitch = 1.05; utter.volume = 1;
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utter);
+}
+</script>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.5.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } 
+  from "https://www.gstatic.com/firebasejs/12.5.0/firebase-auth.js";
+
+/// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyD8DmilrGWghTGL-S-fuQbQ7BXbuIBjUyw",
+  authDomain: "thisone-c0a39.firebaseapp.com",
+  projectId: "thisone-c0a39",
+  storageBucket: "thisone-c0a39.firebasestorage.app",
+  messagingSenderId: "195362048461",
+  appId: "1:195362048461:web:74101b5ef60855a98fdc84",
+  measurementId: "G-C96B34440E"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// ====== SIGNUP ======
+window.signup = async function() {
+  const user = document.getElementById("signup-user").value.trim();
+  const email = document.getElementById("signup-email").value.trim();
+  const pass = document.getElementById("signup-pass").value.trim();
+
+  if (!user || !email || !pass) { speak("Please fill all fields."); return false; }
+  if (pass.length < 6) { speak("Password must be at least 6 characters."); return false; }
+
+  try {
+    await createUserWithEmailAndPassword(auth, email, pass);
+    speak(`Welcome, ${user}! Account created.`);
+    alert(`Account created for ${user}`);
+    container.classList.remove("signup-mode");
+  } catch (err) {
+    speak("Signup failed.");
+    alert(err.message);
+  }
+  return false;
+};
+
+// ====== LOGIN ======
+window.login = async function() {
+  const email = document.getElementById("login-user").value.trim();
+  const pass = document.getElementById("login-pass").value.trim();
+
+  if (!email || !pass) { speak("Please fill both fields."); return false; }
+  if (pass.length < 6) { speak("Password must be at least 6 characters."); return false; }
+
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    speak(`Welcome back, ${email}`);
+    alert("Login successful!");
+    // window.location.href = "/dashboard.html"; // optional redirect
+  } catch (err) {
+    speak("Login failed.");
+    alert(err.message);
+  }
+  return false;
+};
+</script>
+</body>
+</html>

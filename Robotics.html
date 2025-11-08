@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Robotics — Henshaw's Tech World</title>
+<style>
+  :root{
+    --bg:#070708;
+    --panel: rgba(255,255,255,0.04);
+    --accent1: #00ffff;
+    --accent2: #00ff5a;
+    --accent3: #0040ff;
+    --text:#e8fdfc;
+    --muted:#9aa3a6;
+    --glass: rgba(255,255,255,0.03);
+    --glass-strong: rgba(255,255,255,0.06);
+    --glow: 0 0 30px rgba(0,255,255,0.12), 0 0 60px rgba(0,64,255,0.06);
+  }
+  body {
+    margin:0; font-family: Inter, sans-serif;
+    background: radial-gradient(900px 400px at 80% 20%, rgba(0,255,255,0.04), transparent),
+                radial-gradient(700px 300px at 10% 90%, rgba(0,64,255,0.04), transparent),
+                var(--bg);
+    color:var(--text);
+  }
+  header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:24px 36px; border-bottom:1px solid var(--glass-strong);
+  }
+  h1 { 
+    background: linear-gradient(90deg,var(--accent2),var(--accent3));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+    font-size:32px; margin:0;
+  }
+  main { max-width:1000px; margin:60px auto; padding:0 20px; }
+  .section {
+    background:var(--panel); border:1px solid var(--glass);
+    border-radius:16px; padding:32px; box-shadow: var(--glow);
+    margin-bottom:32px;
+  }
+  h2 { color:var(--accent2); margin-top:0; }
+  p { color:var(--muted); line-height:1.6; }
+  a.btn {
+    display:inline-block; margin-top:16px; text-decoration:none;
+    padding:10px 18px; border-radius:12px;
+    background: linear-gradient(90deg,var(--accent2),var(--accent3));
+    color:#000; font-weight:700; box-shadow: var(--glow);
+  }
+  footer {
+    text-align:center; padding:20px; border-top:1px solid var(--glass-strong);
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Robotics</h1>
+  <a href="index.html" style="color:var(--accent2);text-decoration:none;">← Back to Home</a>
+</header>
+
+<main>
+  <div class="section">
+    <h2>About the Course</h2>
+    <p>Dive into the future with robotics engineering! Learn to design, code, and control robots using Arduino, Raspberry Pi, and Python. Understand sensors, actuators, and automation systems that power intelligent machines.</p>
+    <a href="Join us.html?course=Robotics" class="btn">Join Course</a>
+  </div>
+
+  <div class="section">
+    <h2>Projects You’ll Build</h2>
+    <p>• Obstacle Avoidance Robot<br>
+       • Line-Following Car<br>
+       • Voice-Controlled Bot<br>
+       • IoT-Based Smart Arm</p>
+  </div>
+
+  <div class="section">
+    <h2>Next Step</h2>
+    <p>Advance to AI-powered robotics, drone navigation, and machine vision after mastering basic control systems.</p>
+  </div>
+</main>
+
+<footer>© <span id="year"></span> Henshaw's Tech World</footer>
+<script>
+document.getElementById('year').innerText = new Date().getFullYear();
+</script>
+</body>
+</html>
