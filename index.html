@@ -327,6 +327,7 @@ a{
 </style>
 </head>
 <body>
+  <audio src="Dax-Lonely-Dirt-Road-(TrendyBeatz.com).mp3" autoplay="on"></audio>
   <!-- Loading / Intro -->
   <div id="loader">
     <div>
@@ -620,48 +621,77 @@ const sendBtn = document.getElementById("sendBtn");
 const userInput = document.getElementById("userInput");
 const chatBody = document.getElementById("chatBody");
 
+// === Open / Close Chat Box ===
 aiChatBtn.addEventListener("click", () => {
-  aiChatBox.style.display = "flex";
-  aiChatBtn.style.display = "none";
+  aiChatBox.style.display = "flex"; // show chat box
+  aiChatBtn.style.display = "none"; // hide floating button
 });
 
 closeChat.addEventListener("click", () => {
-  aiChatBox.style.display = "none";
-  aiChatBtn.style.display = "grid";
+  aiChatBox.style.display = "none"; // hide chat box
+  aiChatBtn.style.display = "grid"; // show floating button
 });
 
-function addMessage(sender, text){
+// === Add Message to Chat ===
+function addMessage(sender, text) {
   const msg = document.createElement("div");
-  msg.classList.add("msg", sender);
-  msg.textContent = text;
+  msg.classList.add("message", sender);
+  msg.innerHTML = `<p>${text}</p>`;
   chatBody.appendChild(msg);
   chatBody.scrollTop = chatBody.scrollHeight;
 }
 
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keypress", e => {
-  if(e.key === "Enter") sendMessage();
-});
-
-function sendMessage(){
+// === Send Message ===
+async function sendMessage() {
   const text = userInput.value.trim();
-  if(!text) return;
+  if (!text) return;
+
   addMessage("user", text);
   userInput.value = "";
 
-  // Simulated AI response (replace with real API later)
-  setTimeout(()=>{
+  // Temporary "Thinking..." message
+  addMessage("ai", "💭 Thinking...");
+
+  try {
+    // Replace with your real backend API
+    const res = await fetch("http://localhost:4000/api/ai", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ prompt: text })
+    });
+
+    const data = await res.text();
+
+    // Remove "Thinking..." message
+    chatBody.lastChild.remove();
+
+    // Add AI response
+    addMessage("ai", data);
+  } catch (err) {
+    // Remove "Thinking..." message
+    chatBody.lastChild.remove();
+
+    // Fallback: simulated AI response
     const replies = [
-      "That sounds interesting!",
+      "Hello, how is everything?",
       "Let me help you with that.",
       "I can explain that further if you want.",
       "Could you give me more details?",
       "✅ Done! What else would you like to do?"
     ];
-    const reply = replies[Math.floor(Math.random()*replies.length)];
-    addMessage("bot", reply);
-  }, 700);
+    const reply = replies[Math.floor(Math.random() * replies.length)];
+    addMessage("ai", reply);
+
+    console.error("Error fetching AI response:", err);
+  }
 }
+
+// === Event listeners ===
+sendBtn.addEventListener("click", sendMessage);
+userInput.addEventListener("keypress", e => {
+  if (e.key === "Enter") sendMessage();
+});
+
 /* ========= Theme toggle and UI interactions ========= */
 const themeToggle = document.getElementById('themeToggle');
 themeToggle.addEventListener('click', () => {
@@ -669,10 +699,6 @@ themeToggle.addEventListener('click', () => {
   playClickTone();
 });
 
-document.getElementById('contactBtn').addEventListener('click', () => {
-  playClickTone();
-  alert('Connect: supracoded@anyweb.dev');
-});
 
 document.getElementById('hire').addEventListener('click', () => {
   playClickTone();
